@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+      <!-- Required library -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+      <!-- Bootstrap theme -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  
+</head>
+<body>
+     <div class="container">
+
+        <div class="row">
+            <div class="col-xs-12" align="center">
+            <div id="wheel">
+                <canvas id="canvas" width="260" height="260"></canvas>
+            </div>
+            </div>
+        </div>
+        <!--  end row --><br>
+        <div class="row">
+            <div class="col-xs-6" align="center">
+                <button type="button" class="btn btn-success" id="spinButton">Spin Now!</button>
+
+            </div>
+            <br> <br> <br>
+            <div class="col-xs-6" align="center">
+            <button type="button" id="stop" class="btn btn-info" onclick="stops()">Stop Now!</button>
+            </div>
+        </div>
+        </div>
+        <!-- end container -->
+        
+        <script language="JavaScript">
+            function create_spinner() {
+            color_data = ['#fedf30', '#fdb441', '#fd6930', '#eb5454', '#bf9dd3', '#29b8cd', "#00f2a6", "#f67"];
+            label_data = ['offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %'];
+            var color = color_data;
+            var label = label_data;
+            var slices = color.length;
+            var sliceDeg = 360 / slices;
+            var deg = rand(0, 360);
+            var speed = 10;
+            var slowDownRand = 0;
+            var ctx = canvas.getContext('2d');
+            var width = canvas.width; // size
+            var center = width / 2; // center
+            ctx.clearRect(0, 0, width, width);
+            for (var i = 0; i < slices; i++) {
+                ctx.beginPath();
+                ctx.fillStyle = color[i];
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, width / 2, deg2rad(deg), deg2rad(deg + sliceDeg));
+                ctx.lineTo(center, center);
+                ctx.fill();
+                var drawText_deg = deg + sliceDeg / 2;
+                ctx.save();
+                ctx.translate(center, center);
+                ctx.rotate(deg2rad(drawText_deg));
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#fff";
+                ctx.font = 'bold 15px sans-serif';
+                ctx.fillText(label[i], 100, 5);
+                ctx.restore();
+                deg += sliceDeg;
+            }
+            }
+            create_spinner();
+            var deg = rand(0, 360);
+            var speed = 10;
+            var ctx = canvas.getContext('2d');
+            var width = canvas.width; // size
+            var center = width / 2; // center
+            var isStopped = false;
+            var lock = false;
+            var slowDownRand = 0;
+        
+            function spin() {
+            color_data = ['#fedf30', '#fdb441', '#fd6930', '#eb5454', '#bf9dd3', '#29b8cd', "#00f2a6", "#f67"];
+            label_data = ['offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %'];
+            var color = color_data;
+            var label = label_data;
+            var slices = color.length;
+            var sliceDeg = 360 / slices;
+            deg += speed;
+            deg %= 360;
+            // Increment speed
+            if (!isStopped && speed < 3) {
+                speed = speed + 1 * 0.1;
+            }
+            // Decrement Speed
+            if (isStopped) {
+                if (!lock) {
+                lock = true;
+                slowDownRand = rand(0.994, 0.998);
+                }
+                speed = speed > 0.2 ? speed *= slowDownRand : 0;
+            }
+            // Stopped!
+            if (lock && !speed) {
+                var ai = Math.floor(((360 - deg - 90) % 360) / sliceDeg); // deg 2 Array Index
+                ai = (slices + ai) % slices; // Fix negative index
+                //return alert("You got:\n"+ label[ai] ); // Get Array Item from end Degree
+                return swal({
+                title: "Wow!!!!",
+                text: "It's " + label[ai] + " turn",
+                type: "success",
+                confirmButtonText: "OK",
+                closeOnConfirm: false
+                });
+            }
+            ctx.clearRect(0, 0, width, width);
+            for (var i = 0; i < slices; i++) {
+                ctx.beginPath();
+                ctx.fillStyle = color[i];
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, width / 2, deg2rad(deg), deg2rad(deg + sliceDeg));
+                ctx.lineTo(center, center);
+                ctx.fill();
+                var drawText_deg = deg + sliceDeg / 2;
+                ctx.save();
+                ctx.translate(center, center);
+                ctx.rotate(deg2rad(drawText_deg));
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#fff";
+                ctx.font = 'bold 15px sans-serif';
+                ctx.fillText(label[i], 100, 5);
+                ctx.restore();
+                deg += sliceDeg;
+            }
+            window.requestAnimationFrame(spin);
+            }
+        
+            function stops() {
+            isStopped = true;
+            }
+        
+            function deg2rad(deg) {
+            return deg * Math.PI / 180;
+            }
+        
+            function rand(min, max) {
+            return Math.random() * (max - min) + min;
+            }
+            // get the button element
+            const button = document.getElementById("spinButton");
+
+button.addEventListener("click", () => {
+  const lastClickedTime = localStorage.getItem("spinButtonClickedTime");
+  const currentTime = new Date().getTime();
+
+  if (!lastClickedTime || (currentTime - lastClickedTime) >= 24 * 60 * 60 * 1000) {
+    // 24 hours have passed, execute the spin() function
+    spin();
+    localStorage.setItem("spinButtonClickedTime", currentTime);
+  } else {
+    // Display the remaining time until the button can be clicked again
+    const remainingTime = (24 * 60 * 60 * 1000) - (currentTime - lastClickedTime);
+    const remainingHours = Math.floor(remainingTime / (60 * 60 * 1000));
+    const remainingMinutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+    const remainingSeconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
+
+    alert(`Please wait ${remainingHours} hours, ${remainingMinutes} minutes, and ${remainingSeconds} seconds before spinning again.`);
+  }
+});
+
+// define the spin function
+function spin() {
+  // code to execute when the button is pressed after the time limit has expired
+
+
+  
+            color_data = ['#fedf30', '#fdb441', '#fd6930', '#eb5454', '#bf9dd3', '#29b8cd', "#00f2a6", "#f67"];
+            label_data = ['offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %', 'offer 50 %'];
+            var color = color_data;
+            var label = label_data;
+            var slices = color.length;
+            var sliceDeg = 360 / slices;
+            deg += speed;
+            deg %= 360;
+            // Increment speed
+            if (!isStopped && speed < 3) {
+                speed = speed + 1 * 0.1;
+            }
+            // Decrement Speed
+            if (isStopped) {
+                if (!lock) {
+                lock = true;
+                slowDownRand = rand(0.994, 0.998);
+                }
+                speed = speed > 0.2 ? speed *= slowDownRand : 0;
+            }
+            // Stopped!
+            if (lock && !speed) {
+                var ai = Math.floor(((360 - deg - 90) % 360) / sliceDeg); // deg 2 Array Index
+                ai = (slices + ai) % slices; // Fix negative index
+                //return alert("You got:\n"+ label[ai] ); // Get Array Item from end Degree
+                return swal({
+                title: "Wow!!!!",
+                text: "It's " + label[ai] + " turn",
+                type: "success",
+                confirmButtonText: "OK",
+                closeOnConfirm: false
+                });
+            }
+            ctx.clearRect(0, 0, width, width);
+            for (var i = 0; i < slices; i++) {
+                ctx.beginPath();
+                ctx.fillStyle = color[i];
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, width / 2, deg2rad(deg), deg2rad(deg + sliceDeg));
+                ctx.lineTo(center, center);
+                ctx.fill();
+                var drawText_deg = deg + sliceDeg / 2;
+                ctx.save();
+                ctx.translate(center, center);
+                ctx.rotate(deg2rad(drawText_deg));
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#fff";
+                ctx.font = 'bold 15px sans-serif';
+                ctx.fillText(label[i], 100, 5);
+                ctx.restore();
+                deg += sliceDeg;
+            }
+            window.requestAnimationFrame(spin);
+            }
+        
+            function stops() {
+            isStopped = true;
+            }
+        
+            function deg2rad(deg) {
+            return deg * Math.PI / 180;
+            }
+        
+            function rand(min, max) {
+            return Math.random() * (max - min) + min;
+            }
+
+
+        </script>
+    </script>
+</body>
+</html>
